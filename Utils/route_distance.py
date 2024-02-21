@@ -6,6 +6,13 @@ from shapely.geometry import Point
 from geopy.distance import great_circle
 pd.set_option('display.max_columns', None)
 
+superset_amenities = ['parking', 'restaurant', 'fire_station', 'cinema', 'dentist',
+       'school', 'atm', 'fuel', 'fast_food', 'toilets', 'pharmacy',
+       'bank', 'police', 'post_box', 'place_of_worship', 'bar', 'pub',
+       'cafe', 'clinic', 'hospital', 'community_centre',
+       'vending_machine', 'bus_station', 'health_post', 'college',
+       'theatre', 'showroom', 'marketplace']
+
 class AmenityDistanceCalculator:
     def __init__(self, lat, lon, radius):
         self.lat = lat
@@ -37,15 +44,15 @@ class AmenityDistanceCalculator:
         return amenities
 
     def calculate_distances(self, point):
+
         # Create a new DataFrame
         df_new = self.amenities.copy()
 
         # Calculate distances and convert to meters
         df_new['Amenity_distance_From_point'] = df_new.apply(lambda row: haversine(point, (row['latitude'], row['longitude'])) * 1000, axis=1)
 
-        # Group by amenity and calculate mean distance
-        result = df_new.groupby('Amenity')['Amenity_distance_From_point'].mean().reset_index()
-
+        # Group by amenity and calculate sum of distances
+        result = df_new.groupby('Amenity')['Amenity_distance_From_point'].sum().reset_index()
         return result
 
 if __name__ == "__main__":
@@ -53,9 +60,8 @@ if __name__ == "__main__":
     point = (17.442109, 78.498555)
     
     # make instance
-    amenities_secunderabad = AmenityDistanceCalculator(lat=17.456, lon=78.40, radius=1000)
+    amenities_secunderabad = AmenityDistanceCalculator(lat=17.442109, lon= 78.498555,radius=2000)
 
     # Calculate distances
     result = amenities_secunderabad.calculate_distances(point)
-    
     print(result)
